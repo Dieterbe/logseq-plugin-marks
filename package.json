@@ -20,5 +20,8 @@
   "logseq": {
     "id": "dieter_marks",
     "icon": "./logo.png"
+  },
+  "release": {
+    "branches": ["main"]
   }
 }
