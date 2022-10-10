@@ -1,0 +1,24 @@
+{
+  "name": "logseq-marks",
+  "version": "0.0.1",
+  "description": "Make marks (pointers) to track references to pages",
+  "main": "dist/index.html",
+  "author": "Dieterbe",
+  "license": "MIT",
+  "targets": {
+    "main": false
+  },
+  "default": "dist/index.html",
+  "scripts": {
+    "dev": "parcel ./index.html --public-url ./",
+    "build": "parcel build --public-url . --no-source-maps index.html"
+  },
+  "devDependencies": {
+    "@logseq/libs": "^0.0.6",
+    "parcel": "^2.0.0"
+  },
+  "logseq": {
+    "id": "dieter_marks",
+    "icon": "./logo.png"
+  }
+}
