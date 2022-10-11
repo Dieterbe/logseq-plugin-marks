@@ -14,11 +14,13 @@ to update the pointer to the current page.  Next time you can just check the mar
 * Go to the marks page to see where your mark(s) point to.
 
 
-![screenshot](./screenshot.png)
+![screenshot-marks-page](./screenshot-marks-page.png)
+![screenshot-menu](./screenshot-menu.png)
 
 ## Limitations
 
-* At this time there is only one mark, named default. In the future it will probably support multiple marks.
+* Limited support for multiple marks: at startup, we add menu shortcuts for all defined marks (as well as "default") 
+  In the future, I want to add a menu to create new marks from the menu.  For now you have to manually add it to the marks page once and reload logseq (or the plugin), from then on you can always update the mark via the slash menu.
 * only marks pages, not blocks.
 
 ### Running the code

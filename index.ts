@@ -1,15 +1,29 @@
 import '@logseq/libs'
 import { SettingsSchema } from "./settingsSchema";
 
+// returns an array of recommended mark names, i.e. "default" and any others the user has defined.
+async function getMarks(): Promise<string[]> {
+  const marksPageName = logseq.settings?.marks_page_name ?? 'marks'
 
-async function main() {
+  let marks = ["default"]
 
-  logseq.useSettingsSchema(SettingsSchema)
+  const markBlocksTree = await logseq.Editor.getPageBlocksTree(marksPageName)
+  if (markBlocksTree) {
 
-  const markName = "default"
+    const moreMarks = markBlocksTree
+      .map(b => b.content.split(' ', 3))
+      .filter(sp => sp.length === 3 && sp[0] === "mark" && sp[1] != "default" && sp[2].startsWith("[["))
+      .map(sp => sp[1])
 
+    marks = marks.concat(moreMarks)
+  }
+
+  return marks.sort()
+}
+
+function registerCallback(markName: string) {
   logseq.Editor.registerSlashCommand(
-    'mark', async () => {
+    `mark ${markName}`, async () => {
       const marksPageName = logseq.settings?.marks_page_name ?? 'marks'
 
       const page = await logseq.Editor.getCurrentPage()
@@ -20,7 +34,6 @@ async function main() {
 
       let marksPage = await logseq.Editor.getPage(marksPageName)
       if (!marksPage) {
-        logseq.UI.showMsg("Could not get marks page. creating one", "warning")
         marksPage = await logseq.Editor.createPage(marksPageName)
         if (marksPage) {
           logseq.UI.showMsg("created a new marks page")
@@ -43,23 +56,31 @@ async function main() {
       // iterate the blocks and find what we need
       for (var i in pageBlocksTree) {
         let b = pageBlocksTree[i]
-        const sp = b.content.split(' ',3) // note that page name may contain white space
+        const sp = b.content.split(' ', 3) // note that page name may contain white space
 
         if (sp.length === 3 && sp[0] === "mark" && sp[1] === markName && sp[2].startsWith("[[")) {
-          console.log("bingo on this line" + b.content)
-          console.log("found mark " + sp[1] + " pointing to " + sp[2], "updating to " + page.originalName)
-          logseq.Editor.updateBlock(b.uuid, newContent )
+          console.log("logseq-plugin-marks: found mark " + sp[1] + " pointing to " + sp[2], "updating to " + page.originalName)
+          logseq.Editor.updateBlock(b.uuid, newContent)
           return
         }
       }
-      console.log("no mark found, creating one")
 
-      // if we're still here, it means we didn't find our mark on the page. add it.
-      //logseq.Editor.createBlock({ content: "mark default [[" + page.originalName + "]]" })
+      console.log(`logseq-plugin-marks: did not find mark ${markName}, creating it to point to ${page.originalName}`)
       const block = await logseq.Editor.appendBlockInPage(currentPage.name, newContent)
-      console.log("added block", block)
     },
   )
+}
+
+async function main() {
+
+  logseq.useSettingsSchema(SettingsSchema)
+
+  const marks = await getMarks()
+
+  // for every mark name in the array, register the callback
+  for (const markName of marks) {
+    registerCallback(markName)
+  }
 }
 
 // bootstrap
